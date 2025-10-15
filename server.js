@@ -12,40 +12,55 @@ app.get('/livros', (req,  res) => {
 
 app.get('/livros/:id', (req, res) => {
     const id = parseInt(req.params.id);
-    const livros = livros.find(p => p.id);
-    if (livros) {
-        res.json(livros);
-    }else{
-        res.status.send('Livro não encontrado!');
+    const livro = livros.find(p => p.id === id);
+
+    if (livro) {
+        res.json(livro);
+    } else {
+        res.status(404).send('Livro não encontrado!');
     }
 });
 
-app.post('/livros',
-    (req, res) => {
-        const nome = req.body.nome;
-        const novoLivro = { id:livros.length + 1, nome: nome};
-        livros.push(novoLivro);
-        res.status(201).json(novoLivro);
+app.post('/livros', (req, res) => {
+    const { nome, categoria, autor } = req.body;
+    const novoLivro = { 
+        id: livros.length + 1, 
+        nome, 
+        categoria, 
+        autor 
+    };
+    livros.push(novoLivro);
+    res.status(201).json(novoLivro);
+});
+
+
+app.put('/livros/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const { nome, categoria, autor } = req.body;
+
+    const livro = livros.find(p => p.id === id);
+
+    if (livro) {
+        if (nome) livro.nome = nome;
+        if (categoria) livro.categoria = categoria;
+        if (autor) livro.autor = autor;
+        res.json(livro);
+    } else {
+        res.status(404).json({ error: 'Livro não encontrado' });
     }
-);
+});
 
-app.put('livros/:id',
-    (req, res) => {
-        const id = parseInt(req.params.id);
-        const { nome } = req.body;
+app.delete('/livros/:id', (req, res) => {
+    const id = parseInt(req.params.id);
+    const index = livros.findIndex(p => p.id === id);
 
-        const livro = livros.find(p => p.id === id);
-
-        if (livros) {
-            livro.nome = nome;
-            res.json(livro);
-        } else {
-            res.status(404).json({ error: 'pessoa não encontrada'})
-        }
+    if (index !== -1) {
+        const deletado = livros.splice(index, 1);
+        res.json(deletado);
+    } else {
+        res.status(404).json({ error: 'Livro não encontrado' });
     }
-);
-
-app.delete
+});
 
 
 app.listen(port, () => {
